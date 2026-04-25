@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SoulHash</title>
+</head>
+
+<body style="background:black;color:white;text-align:center;font-family:sans-serif;">
+
+<h1>SoulHash</h1>
+
+<button onclick="connectWallet()">Connect Wallet</button>
+
+<p id="wallet"></p>
+<p id="soulhash"></p>
+
+<h2>Phase 1: The Awakening</h2>
+
+<button onclick="choose('light')">Follow the Light</button>
+<button onclick="choose('shadow')">Embrace Darkness</button>
+<button onclick="choose('balance')">Stay Neutral</button>
+
+<br><br>
+
+<!-- 🔗 Abrir direto na Phantom -->
+<a href="https://phantom.app/ul/browse/https://osiristecnologi.github.io" style="color:cyan;">
+  Open in Phantom
+</a>
+
+<script>
+let userWallet = "";
+
+// 🔥 CONECTAR (SÓ PHANTOM)
+async function connectWallet() {
+  try {
+    if (!window.solana || !window.solana.isPhantom) {
+      alert("Open this site inside Phantom Wallet");
+      return;
+    }
+
+    const res = await window.solana.connect();
+    userWallet = res.publicKey.toString();
+
+    document.getElementById("wallet").innerText = "Wallet: " + userWallet;
+
+    const response = await fetch("https://soulhash-api.onrender.com/login", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ wallet: userWallet })
+    });
+
+    const data = await response.json();
+
+    document.getElementById("soulhash").innerText = "SoulHash: " + data.soulhash;
+
+  } catch (err) {
+    console.error(err);
+    alert("Connection failed");
+  }
+}
+
+// 🎮 ESCOLHAS
+async function choose(type) {
+  if (!userWallet) {
+    alert("Connect wallet first");
+    return;
+  }
+
+  const response = await fetch("https://soulhash-api.onrender.com/choice", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ wallet: userWallet, choice: type })
+  });
+
+  const data = await response.json();
+
+  alert(
+    "Updated:\nLight: " + data.luz +
+    "\nShadow: " + data.sombra +
+    "\nBalance: " + data.equilibrio
+  );
+}
+</script>
+
+</body>
+</html>
